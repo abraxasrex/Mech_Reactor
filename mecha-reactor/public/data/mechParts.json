@@ -1,0 +1,62 @@
+[
+    {
+        "id": "chassis_square",
+        "readableName": "Square Chassis",
+        "description": "A square-shaped mech chassis.",
+        "imageSource": "/assets/pieces/chassis_square.png",
+        "partCategory": "Chassis"
+    },
+    {
+        "id": "head_orb",
+        "readableName": "Orb Head",
+        "description": "A round orb-shaped mech head.",
+        "imageSource": "/assets/pieces/head_orb.png",
+        "partCategory": "Head"
+    },
+    {
+        "id": "head_square",
+        "readableName": "Square Head",
+        "description": "A square-shaped mech head.",
+        "imageSource": "/assets/pieces/head_square.png",
+        "partCategory": "Head"
+    },
+    {
+        "id": "arms_round",
+        "readableName": "Round Arms",
+        "description": "A pair of round-shaped mech arms.",
+        "leftImageSource": "/assets/pieces/L_arm_round.png",
+        "rightImageSource": "/assets/pieces/R_arm_round.png",
+        "partCategory": "Arms"
+    },
+    {
+        "id": "arms_square",
+        "readableName": "Square Arms",
+        "description": "A pair of square-shaped mech arms.",
+        "leftImageSource": "/assets/pieces/L_arm_square.png",
+        "rightImageSource": "/assets/pieces/R_arm_square.png",
+        "partCategory": "Arms"
+    },
+    {
+        "id": "legs_round",
+        "readableName": "Round Legs",
+        "description": "A pair of round-shaped mech legs.",
+        "leftImageSource": "/assets/pieces/L_leg_round.png",
+        "rightImageSource": "/assets/pieces/R_leg_round.png",
+        "partCategory": "Legs"
+    },
+    {
+        "id": "legs_square",
+        "readableName": "Square Legs",
+        "description": "A pair of square-shaped mech legs.",
+        "leftImageSource": "/assets/pieces/L_leg_square.png",
+        "rightImageSource": "/assets/pieces/R_leg_square.png",
+        "partCategory": "Legs"
+    },
+    {
+        "id": "round_chassis",
+        "readableName": "Round Chassis",
+        "description": "A round-shaped mech chassis.",
+        "imageSource": "/assets/pieces/round_chassis.png",
+        "partCategory": "Chassis"
+    }
+]
