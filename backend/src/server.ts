@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import path from 'path';
 
 dotenv.config();
 
@@ -19,9 +20,23 @@ mongoose.connect(mongoURI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Routes
-app.get('/', (req, res) => {
-  res.send('Backend is running!');
+// Define the build directory path relative to the current file
+const buildDir = path.join(__dirname, '../../mecha-reactor/build');
+
+console.log("Build Directory:", buildDir); // Log the build directory path
+
+// API Routes go here - these need to come first
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'Backend is running!' });
+});
+
+// Serve static files from the React app
+app.use('/', express.static(buildDir));
+
+// Catch all other routes and return the index.html file
+app.get('/*splat', (req, res) => {
+  const indexPath = path.join(buildDir, 'index.html');
+  res.sendFile(indexPath);
 });
 
 // Start Server
