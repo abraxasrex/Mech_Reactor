@@ -32,7 +32,6 @@ const PartArrangementEditor: React.FC<PartArrangementEditorProps> = ({ mechParts
         [PartCategory.Legs]: { x: 0, y: 0 },
         [PartCategory.Chassis]: { x: 0, y: 0 },
     });
-    const draggingPartRef = useRef<PartCategory | null>(null);
     const [draggingPart, setDraggingPart] = useState<PartCategory | null>(null);
     const [dragOffset, setDragOffset] = useState<PartPosition>({ x: 0, y: 0 });
     const hitTestCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -63,7 +62,7 @@ const PartArrangementEditor: React.FC<PartArrangementEditorProps> = ({ mechParts
         });
     };
 
-    const handleMouseDown = async (e: MouseEvent) => {
+    const handleMouseDown = (e: MouseEvent) => {
         e.preventDefault();
         
         const container = document.querySelector('.mech-visualization') as HTMLElement;
@@ -81,8 +80,6 @@ const PartArrangementEditor: React.FC<PartArrangementEditorProps> = ({ mechParts
             const bIndex = Object.values(PartCategory).indexOf(b.category);
             return bIndex - aIndex;
         });
-
-      //  console.log("mouse down event");
 
         for (const part of sortedParts) {
             if (part.category === PartCategory.Chassis) continue;
@@ -112,66 +109,36 @@ const PartArrangementEditor: React.FC<PartArrangementEditorProps> = ({ mechParts
                 1, 1
             ).data;
 
-           // console.log("mouse down  passes deps, pixel: ", pixel);
-
-
             if (pixel[3] !== 0) {
-                // Calculate offset relative to the part's current position
-                console.log("part position 1, x: " + partPosition.x + " y: " + partPosition.y);
                 setDragOffset({
                     x: clickX - partPosition.x,
                     y: clickY - partPosition.y
                 });
                 setDraggingPart(part.category);
-                draggingPartRef.current = part.category;
-
-                console.log("part position 2, x: " + partPosition.x + " y: " + partPosition.y);
-
-                
-                // Add document-level event handlers
-                const docMouseMove = (e: globalThis.MouseEvent) => {
-                    e.preventDefault();
-
-
-                    const container = document.querySelector('.mech-visualization') as HTMLElement;
-
-                  //  console.log("mouse move, dragging part: " + draggingPartRef.current + " container: " + container);
-
-                    if (!draggingPartRef.current) return;
-                    if (!container) return;
-                    
-                    const containerRect = container.getBoundingClientRect();
-                    
-
-                    setPartPositions(prev => {
-                        if (!draggingPartRef.current) return prev;
-
-                        console.log("drag offset at set position, x: " + dragOffset.x + " y: " + dragOffset.y);
-
-                        return {
-                            ...prev,
-                            [draggingPartRef.current as keyof typeof prev]: {
-                                x: e.clientX - containerRect.left - dragOffset.x,
-                                y: e.clientY - containerRect.top - dragOffset.y
-                            }
-                        };
-                    });
-                };
-
-                const docMouseUp = (e: globalThis.MouseEvent) => {
-                    e.preventDefault();
-                   // console.log('Mouse up ');
-                    setDraggingPart(null);
-                    draggingPartRef.current = null;
-                    document.removeEventListener('mousemove', docMouseMove);
-                    document.removeEventListener('mouseup', docMouseUp);
-                };
-
-                document.addEventListener('mousemove', docMouseMove);
-                document.addEventListener('mouseup', docMouseUp);
                 return;
             }
         }
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+        if (!draggingPart) return;
+
+        const container = document.querySelector('.mech-visualization') as HTMLElement;
+        if (!container) return;
+
+        const containerRect = container.getBoundingClientRect();
+        
+        setPartPositions(prev => ({
+            ...prev,
+            [draggingPart]: {
+                x: e.clientX - containerRect.left - dragOffset.x,
+                y: e.clientY - containerRect.top - dragOffset.y
+            }
+        }));
+    };
+
+    const handleMouseUp = () => {
+        setDraggingPart(null);
     };
 
     useEffect(() => {
@@ -229,6 +196,9 @@ const PartArrangementEditor: React.FC<PartArrangementEditorProps> = ({ mechParts
                 <div 
                     className={`grid ${partDisplayColumnSetting} mech-visualization relative w-${mechDisplaySize} h-${mechDisplaySize} mx-auto top-[-10rem]`}
                     onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
                 >
                     {getCurrentPart(PartCategory.Arms) && (
                         <>
