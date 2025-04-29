@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import './App.css';
 import { MechPartService } from './services/MechPartService';
 import { MechPart, PartCategory } from './models/MechPart';
+import Layout from './components/Layout';
+import PartArrangementEditor from './components/PartArrangementEditor';
 import PartCategoryUI from './components/PartCategoryUI';
 
-const App: React.FC = () => {
-
-  const mechDisplaySize = "full ";
+const MechDisplay: React.FC = () => {
+  const mechDisplaySize = "full";
   const partDisplayClasses = `absolute object-cover`;
   const parentColumnSetting = "grid-cols-12";
   const UIColumnSetting = "col-span-5";
@@ -57,9 +59,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-8">
-      <h1 className="text-4xl font-bold text-gray-800 mb-8">Mecha Reactor</h1>
-      
+    <div className="p-8">
       <div className={`w-full max-w-7xl grid ${parentColumnSetting} gap-8`}>
         <div className={`grid ${UIColumnSetting} gap-6`}>
           {Object.values(PartCategory).map((category) => (
@@ -73,26 +73,26 @@ const App: React.FC = () => {
           ))}
         </div>
 
-        <div className= {`grid ${partDisplayColumnSetting} mech-visualization relative w-${mechDisplaySize} h-${mechDisplaySize} mx-auto top-[-10rem]`}>
+        <div className={`grid ${partDisplayColumnSetting} mech-visualization relative w-${mechDisplaySize} h-${mechDisplaySize} mx-auto top-[-10rem]`}>
           {getCurrentPart(PartCategory.Arms) && (
             <img 
               src={getCurrentPart(PartCategory.Arms)?.leftImageSource} 
               alt={`${getCurrentPart(PartCategory.Arms)?.readableName} Left`} 
-              className= {partDisplayClasses} 
+              className={partDisplayClasses} 
             />
           )}
           {getCurrentPart(PartCategory.Legs) && (
             <img 
               src={getCurrentPart(PartCategory.Legs)?.leftImageSource} 
               alt={`${getCurrentPart(PartCategory.Legs)?.readableName} Left`} 
-              className= {partDisplayClasses}
+              className={partDisplayClasses}
             />
           )}
           {getCurrentPart(PartCategory.Chassis) && (
             <img 
               src={getCurrentPart(PartCategory.Chassis)?.imageSource} 
               alt={getCurrentPart(PartCategory.Chassis)?.readableName} 
-              className= {partDisplayClasses}
+              className={partDisplayClasses}
             />
           )}
           {getCurrentPart(PartCategory.Head) && (
@@ -119,6 +119,43 @@ const App: React.FC = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  const [mechParts, setMechParts] = useState<MechPart[]>([]);
+  const [selectedParts, setSelectedParts] = useState<Record<PartCategory, number>>({
+    [PartCategory.Head]: 0,
+    [PartCategory.Chassis]: 0,
+    [PartCategory.Arms]: 0,
+    [PartCategory.Legs]: 0,
+  });
+
+  useEffect(() => {
+    const loadMechParts = async () => {
+      try {
+        const parts = await MechPartService.loadMechParts();
+        setMechParts(parts);
+      } catch (error) {
+        console.error("Error loading mech parts:", error);
+      }
+    };
+    loadMechParts();
+  }, []);
+
+  return (
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<MechDisplay />} />
+        <Route 
+          path="editor" 
+          element={<PartArrangementEditor 
+            mechParts={mechParts}
+            selectedParts={selectedParts}
+          />} 
+        />
+      </Route>
+    </Routes>
   );
 };
 

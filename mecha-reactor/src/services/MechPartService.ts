@@ -7,7 +7,7 @@ export class MechPartService {
             throw new Error("Failed to load mech parts data.");
         }
         const data = await response.json();
-        console.log("Loaded Mech Parts Data:", data); // Log the JSON data
+     //   console.log("Loaded Mech Parts Data:", data); // Log the JSON data
         return data;
     }
 }
