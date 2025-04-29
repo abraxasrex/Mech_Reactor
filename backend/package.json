@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node dist/server.js",
-    "build": "tsc",
+    "build": "cd ../mecha-reactor && yarn install && yarn build && cd ../backend && tsc",
     "dev": "ts-node-dev src/server.ts"
   },
   "keywords": [],
