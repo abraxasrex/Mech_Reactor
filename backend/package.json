@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node dist/server.js",
     "build": "cd ../mecha-reactor && yarn install && yarn build && cd ../backend && tsc",
-    "dev": "ts-node-dev src/server.ts"
+    "dev": "ts-node-dev src/server.ts",
+    "dev-go": "concurrently \"cd ../mecha-reactor && yarn start\" \"ts-node-dev src/server.ts\""
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,7 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
     "@types/node": "^22.15.3",
+    "concurrently": "^9.1.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
   }
