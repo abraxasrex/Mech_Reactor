@@ -5,6 +5,11 @@ export enum PartCategory {
     Legs = "Legs"
 }
 
+export interface PartPosition {
+    x: number;
+    y: number;
+}
+
 export interface MechPart {
     id: string;
     readableName: string;

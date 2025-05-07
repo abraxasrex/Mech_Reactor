@@ -1,6 +1,7 @@
 import React, { useState, MouseEvent, useRef, useEffect } from 'react';
 import { MechPart, PartCategory } from '../models/MechPart';
 import PartCategoryUI from './PartCategoryUI';
+import { MechPartService } from '../services/MechPartService';
 
 interface PartPosition {
     x: number;
@@ -137,9 +138,49 @@ const PartArrangementEditor: React.FC<PartArrangementEditorProps> = ({ mechParts
         }));
     };
 
-    const handleMouseUp = () => {
-        setDraggingPart(null);
+    const handleMouseUp = async () => {
+        if (draggingPart) {
+            const currentPart = getCurrentPart(draggingPart);
+            if (currentPart) {
+                setDraggingPart(null);
+
+                try {
+                    await MechPartService.savePartPosition(
+                        currentPart.id,
+                        draggingPart,
+                        partPositions[draggingPart]
+                    );
+                } catch (error) {
+                    console.error('Failed to save part position:', error);
+                    // You might want to show an error message to the user here
+                }
+            }
+        }
+      //  setDraggingPart(null);
     };
+
+    useEffect(() => {
+        const loadSavedPositions = async () => {
+            try {
+                const savedPositions = await MechPartService.loadPartPositions();
+                setPartPositions(prev => {
+                    const newPositions = { ...prev };
+                    // Map saved positions to their categories
+                    Object.values(PartCategory).forEach(category => {
+                        const currentPart = getCurrentPart(category);
+                        if (currentPart && savedPositions[currentPart.id]) {
+                            newPositions[category] = savedPositions[currentPart.id];
+                        }
+                    });
+                    return newPositions;
+                });
+            } catch (error) {
+                console.error('Failed to load part positions:', error);
+            }
+        };
+
+        loadSavedPositions();
+    }, [selectedParts]); // Reload positions when selected parts change
 
     useEffect(() => {
         const updatePartsRef = () => {
