@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import './App.css';
 import { MechPartService } from './services/MechPartService';
-import { MechPart, PartCategory, PartPosition } from './models/MechPart';
+import { MechPart, PartCategory } from './models/MechPart';
 import Layout from './components/Layout';
 import PartArrangementEditor from './components/PartArrangementEditor';
 import PartCategoryUI from './components/PartCategoryUI';
+import { usePartPositions } from './hooks/usePartPositions';
 
 interface MechDisplayProps {
   mechParts: MechPart[];
@@ -25,12 +26,6 @@ const MechDisplay: React.FC<MechDisplayProps> = ({
   const parentColumnSetting = "grid-cols-12";
   const UIColumnSetting = "col-span-5";
   const partDisplayColumnSetting = "col-span-7";
-  const [partPositions, setPartPositions] = useState<Record<PartCategory, PartPosition>>({
-    [PartCategory.Head]: { x: 0, y: 0 },
-    [PartCategory.Arms]: { x: 0, y: 0 },
-    [PartCategory.Legs]: { x: 0, y: 0 },
-    [PartCategory.Chassis]: { x: 0, y: 0 },
-  });
 
   const getPartsByCategory = (category: PartCategory): MechPart[] => {
     return mechParts.filter(part => part.partCategory === category);
@@ -38,40 +33,14 @@ const MechDisplay: React.FC<MechDisplayProps> = ({
 
   const getCurrentPart = (category: PartCategory): MechPart => {
     const categoryParts = getPartsByCategory(category);
-    console.log("getting current part, dep data:", {
-      category,
-      categoryParts,
-      selectedParts,
-      mechParts
-    });
-    console.log("selected parts at cat:", categoryParts[selectedParts[category]]);
-    return getPartsByCategory(category)[selectedParts[category]];
+    return categoryParts[selectedParts[category]];
   };
 
-  useEffect(() => {
-    const loadSavedPositions = async () => {
-      try {
-        const savedPositions = await MechPartService.loadPartPositions();
-        setPartPositions(prev => {
-          const newPositions = { ...prev };
-          Object.values(PartCategory).forEach(category => {
-            const currentPart = getCurrentPart(category);
-            if (currentPart) {
-              // If we have a saved position for this part, use it, otherwise keep the default
-              newPositions[category] = savedPositions[currentPart.id] || { x: 0, y: 0 };
-            }
-          });
-          return newPositions;
-        });
-      } catch (error) {
-        console.error('Failed to load part positions:', error);
-      }
-    };
-
-    if (mechParts.length > 0) {
-      loadSavedPositions();
-    }
-  }, [selectedParts, mechParts]);
+  const { partPositions } = usePartPositions({
+    mechParts,
+    selectedParts,
+    getCurrentPart
+  });
 
   return (
     <div className="p-8">

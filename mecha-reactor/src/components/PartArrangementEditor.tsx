@@ -1,12 +1,8 @@
-import React, { useState, MouseEvent, useRef, useEffect } from 'react';
+import React, { useState, MouseEvent, useRef, useEffect, useCallback } from 'react';
 import { MechPart, PartCategory } from '../models/MechPart';
 import PartCategoryUI from './PartCategoryUI';
 import { MechPartService } from '../services/MechPartService';
-
-interface PartPosition {
-    x: number;
-    y: number;
-}
+import { usePartPositions } from '../hooks/usePartPositions';
 
 interface PartHitTest {
     category: PartCategory;
@@ -27,25 +23,26 @@ const PartArrangementEditor: React.FC<PartArrangementEditorProps> = ({ mechParts
     const partDisplayColumnSetting = "col-span-7";
     
     const [selectedParts, setSelectedParts] = useState<Record<PartCategory, number>>(initialSelectedParts);
-    const [partPositions, setPartPositions] = useState<Record<PartCategory, PartPosition>>({
-        [PartCategory.Head]: { x: 0, y: 0 },
-        [PartCategory.Arms]: { x: 0, y: 0 },
-        [PartCategory.Legs]: { x: 0, y: 0 },
-        [PartCategory.Chassis]: { x: 0, y: 0 },
-    });
     const [draggingPart, setDraggingPart] = useState<PartCategory | null>(null);
-    const [dragOffset, setDragOffset] = useState<PartPosition>({ x: 0, y: 0 });
+    const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const hitTestCanvasRef = useRef<HTMLCanvasElement>(null);
     const partsRef = useRef<PartHitTest[]>([]);
+    const isDraggingRef = useRef(false);
 
-    const getPartsByCategory = (category: PartCategory): MechPart[] => {
+    const getPartsByCategory = useCallback((category: PartCategory): MechPart[] => {
         return mechParts.filter(part => part.partCategory === category);
-    };
+    }, [mechParts]);
 
-    const getCurrentPart = (category: PartCategory): MechPart | undefined => {
+    const getCurrentPart = useCallback((category: PartCategory): MechPart | undefined => {
         const categoryParts = getPartsByCategory(category);
         return categoryParts[selectedParts[category]];
-    };
+    }, [getPartsByCategory, selectedParts]);
+
+    const { partPositions, setPartPositions } = usePartPositions({
+        mechParts,
+        selectedParts,
+        getCurrentPart
+    });
 
     const handlePrevious = (category: PartCategory) => {
         setSelectedParts(prev => {
@@ -75,7 +72,6 @@ const PartArrangementEditor: React.FC<PartArrangementEditorProps> = ({ mechParts
 
         const parts = partsRef.current;
         
-        // Sort parts by z-index (reverse order) to handle overlapping parts correctly
         const sortedParts = [...parts].sort((a, b) => {
             const aIndex = Object.values(PartCategory).indexOf(a.category);
             const bIndex = Object.values(PartCategory).indexOf(b.category);
@@ -111,6 +107,7 @@ const PartArrangementEditor: React.FC<PartArrangementEditorProps> = ({ mechParts
             ).data;
 
             if (pixel[3] !== 0) {
+                isDraggingRef.current = true;
                 setDragOffset({
                     x: clickX - partPosition.x,
                     y: clickY - partPosition.y
@@ -122,7 +119,7 @@ const PartArrangementEditor: React.FC<PartArrangementEditorProps> = ({ mechParts
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-        if (!draggingPart) return;
+        if (!isDraggingRef.current || !draggingPart) return;
 
         const container = document.querySelector('.mech-visualization') as HTMLElement;
         if (!container) return;
@@ -139,48 +136,29 @@ const PartArrangementEditor: React.FC<PartArrangementEditorProps> = ({ mechParts
     };
 
     const handleMouseUp = async () => {
-        if (draggingPart) {
-            const currentPart = getCurrentPart(draggingPart);
-            if (currentPart) {
-                setDraggingPart(null);
+        if (!isDraggingRef.current || !draggingPart) return;
 
-                try {
-                    await MechPartService.savePartPosition(
-                        currentPart.id,
-                        draggingPart,
-                        partPositions[draggingPart]
-                    );
-                } catch (error) {
-                    console.error('Failed to save part position:', error);
-                    // You might want to show an error message to the user here
-                }
+        const currentPart = getCurrentPart(draggingPart);
+        if (currentPart) {
+            const finalPosition = partPositions[draggingPart];
+            const draggingPartToSave = draggingPart;
+
+            isDraggingRef.current = false;
+            setDraggingPart(null);
+            
+            try {
+                await MechPartService.savePartPosition(
+                    currentPart.id,
+                    draggingPartToSave,
+                    finalPosition
+                );
+            } catch (error) {
+                console.error('Failed to save part position:', error);
             }
         }
-      //  setDraggingPart(null);
+        
+
     };
-
-    useEffect(() => {
-        const loadSavedPositions = async () => {
-            try {
-                const savedPositions = await MechPartService.loadPartPositions();
-                setPartPositions(prev => {
-                    const newPositions = { ...prev };
-                    // Map saved positions to their categories
-                    Object.values(PartCategory).forEach(category => {
-                        const currentPart = getCurrentPart(category);
-                        if (currentPart && savedPositions[currentPart.id]) {
-                            newPositions[category] = savedPositions[currentPart.id];
-                        }
-                    });
-                    return newPositions;
-                });
-            } catch (error) {
-                console.error('Failed to load part positions:', error);
-            }
-        };
-
-        loadSavedPositions();
-    }, [selectedParts]); // Reload positions when selected parts change
 
     useEffect(() => {
         const updatePartsRef = () => {
@@ -206,13 +184,16 @@ const PartArrangementEditor: React.FC<PartArrangementEditorProps> = ({ mechParts
             partsRef.current = parts;
         };
 
-        updatePartsRef();
+        if (!isDraggingRef.current) {
+            updatePartsRef();
+        }
+
         window.addEventListener('resize', updatePartsRef);
 
         return () => {
             window.removeEventListener('resize', updatePartsRef);
         };
-    }, [partPositions, selectedParts, getCurrentPart]);
+    }, [selectedParts, getCurrentPart]);
 
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col items-center p-8">
