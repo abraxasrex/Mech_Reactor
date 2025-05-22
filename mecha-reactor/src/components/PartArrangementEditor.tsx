@@ -230,16 +230,8 @@ const PartArrangementEditor: React.FC<PartArrangementEditorProps> = ({ mechParts
                                 className={`${basePartDisplayClasses} cursor-move`}
                                 style={{
                                     transform: `translate(${partPositions[PartCategory.Arms].x}px, ${partPositions[PartCategory.Arms].y}px)`,
-                                    userSelect: 'none'
-                                }}
-                            />
-                            <img 
-                                src={getCurrentPart(PartCategory.Arms)?.rightImageSource} 
-                                alt={`${getCurrentPart(PartCategory.Arms)?.readableName} Right`} 
-                                className={`${basePartDisplayClasses} cursor-move`}
-                                style={{
-                                    transform: `translate(${partPositions[PartCategory.Arms].x}px, ${partPositions[PartCategory.Arms].y}px)`,
-                                    userSelect: 'none'
+                                    userSelect: 'none',
+                                    zIndex: 1
                                 }}
                             />
                         </>
@@ -252,16 +244,8 @@ const PartArrangementEditor: React.FC<PartArrangementEditorProps> = ({ mechParts
                                 className={`${basePartDisplayClasses} cursor-move`}
                                 style={{
                                     transform: `translate(${partPositions[PartCategory.Legs].x}px, ${partPositions[PartCategory.Legs].y}px)`,
-                                    userSelect: 'none'
-                                }}
-                            />
-                            <img 
-                                src={getCurrentPart(PartCategory.Legs)?.rightImageSource} 
-                                alt={`${getCurrentPart(PartCategory.Legs)?.readableName} Right`} 
-                                className={`${basePartDisplayClasses} cursor-move`}
-                                style={{
-                                    transform: `translate(${partPositions[PartCategory.Legs].x}px, ${partPositions[PartCategory.Legs].y}px)`,
-                                    userSelect: 'none'
+                                    userSelect: 'none',
+                                    zIndex: 2
                                 }}
                             />
                         </>
@@ -271,6 +255,11 @@ const PartArrangementEditor: React.FC<PartArrangementEditorProps> = ({ mechParts
                             src={getCurrentPart(PartCategory.Chassis)?.imageSource} 
                             alt={getCurrentPart(PartCategory.Chassis)?.readableName} 
                             className={basePartDisplayClasses}
+                            style={{
+                                transform: `translate(${partPositions[PartCategory.Chassis].x}px, ${partPositions[PartCategory.Chassis].y}px)`,
+                                userSelect: 'none',
+                                zIndex: 3
+                            }}
                         />
                     )}
                     {getCurrentPart(PartCategory.Head) && (
@@ -280,9 +269,38 @@ const PartArrangementEditor: React.FC<PartArrangementEditorProps> = ({ mechParts
                             className={`${basePartDisplayClasses} cursor-move`}
                             style={{
                                 transform: `translate(${partPositions[PartCategory.Head].x}px, ${partPositions[PartCategory.Head].y}px)`,
-                                userSelect: 'none'
+                                userSelect: 'none',
+                                zIndex: 4
                             }}
                         />
+                    )}
+                    {getCurrentPart(PartCategory.Legs) && (
+                        <>
+                            <img 
+                                src={getCurrentPart(PartCategory.Legs)?.rightImageSource} 
+                                alt={`${getCurrentPart(PartCategory.Legs)?.readableName} Right`} 
+                                className={`${basePartDisplayClasses} cursor-move`}
+                                style={{
+                                    transform: `translate(${partPositions[PartCategory.Legs].x}px, ${partPositions[PartCategory.Legs].y}px)`,
+                                    userSelect: 'none',
+                                    zIndex: 5
+                                }}
+                            />
+                        </>
+                    )}
+                    {getCurrentPart(PartCategory.Arms) && (
+                        <>
+                            <img 
+                                src={getCurrentPart(PartCategory.Arms)?.rightImageSource} 
+                                alt={`${getCurrentPart(PartCategory.Arms)?.readableName} Right`} 
+                                className={`${basePartDisplayClasses} cursor-move`}
+                                style={{
+                                    transform: `translate(${partPositions[PartCategory.Arms].x}px, ${partPositions[PartCategory.Arms].y}px)`,
+                                    userSelect: 'none',
+                                    zIndex: 6
+                                }}
+                            />
+                        </>
                     )}
                 </div>
             </div>

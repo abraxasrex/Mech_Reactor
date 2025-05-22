@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import path from 'path';
 import partPositionsRouter from './routes/partPositions';
+import authRouter from './routes/auth';
 
 dotenv.config();
 
@@ -37,6 +38,7 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'Backend is running!' });
 });
 
+app.use('/api/auth', authRouter);
 app.use('/api/part-positions', partPositionsRouter);
 
 // Serve static files from the React app
