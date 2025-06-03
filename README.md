@@ -4,6 +4,9 @@ Use existing assets or upload your own to customize mechanical sci-fi designs. B
 
 # How to Run
 
+(Dependencies!)
+
+- you need yarn!
 
 1. cd into /backend folder.
 2. run "yarn dev-go" command. this will concurrently run client react and backend server.
