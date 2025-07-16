@@ -39,7 +39,7 @@ export const usePartPositions = ({ mechParts, selectedParts, getCurrentPart }: U
         if (mechParts.length > 0) {
             loadSavedPositions();
         }
-    }, [selectedParts, mechParts, getCurrentPart]);
+    }, []);
 
     return { partPositions, setPartPositions };
 };

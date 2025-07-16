@@ -40,6 +40,8 @@ export class MechPartService {
     }
 
     static async loadPartPositions(): Promise<Record<string, PartPosition>> {
+
+        // TODO: this is running all the time!!!!
         const response = await fetch(`${this.API_BASE}/part-positions`);
         if (!response.ok) {
             throw new Error('Failed to load part positions');

@@ -1,8 +1,8 @@
 import React, { useState, MouseEvent, useRef, useEffect, useCallback } from 'react';
-import { MechPart, PartCategory } from '../models/MechPart';
-import PartCategoryUI from './PartCategoryUI';
-import { MechPartService } from '../services/MechPartService';
-import { usePartPositions } from '../hooks/usePartPositions';
+import { MechPart, PartCategory } from '../../models/MechPart';
+import PartCategoryUI from '../shared/PartCategoryUI';
+import { MechPartService } from '../../services/MechPartService';
+import { usePartPositions } from '../../hooks/usePartPositions';
 
 interface PartHitTest {
     category: PartCategory;

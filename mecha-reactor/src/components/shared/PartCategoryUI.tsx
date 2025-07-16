@@ -1,5 +1,5 @@
 import React from 'react';
-import { MechPart, PartCategory } from '../models/MechPart';
+import { MechPart, PartCategory } from '../../models/MechPart';
 
 interface PartCategoryUIProps {
     category: PartCategory;
